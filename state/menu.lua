@@ -1,12 +1,12 @@
-local menu = {}
+menu = {}
 
 -- lib
 local gamestate = require("lib.gamestate")
 local helper = require("lib.helper")
 
 -- states
-local game = require("state.game")
-local select_level = require("state.select_level")
+game = game or require("state.game")
+select_level = select_level or require("state.select_level")
 
 local current_entry = 1
 local entries = {
