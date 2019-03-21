@@ -22,7 +22,6 @@ function field.init(width, height, cell_size)
     field.cell_size = cell_size
 end
 
-
 function field.get_free_cells()
     local free_cells = {}
 
