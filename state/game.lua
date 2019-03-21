@@ -1,4 +1,4 @@
-local game = {}
+game = {}
 
 -- lib
 local gamestate = require("lib.gamestate")
@@ -6,8 +6,14 @@ local timer = require("lib.timer")
 local direction = require("lib.direction")
 local helper = require("lib.helper")
 
+-- level
+local level = require("level")
+
+-- game config
+local gc = require("game_conf")
+
 -- state 
-local gameover = require("state.gameover")
+gameover = gameover or require("state.gameover")
 
 -- entities
 local field = {}
@@ -16,10 +22,12 @@ local snack = {}
 local score = {}
 
 --- field
-function field.init(width, height, cell_size)
+function field.init(width, height, cell_size, level)
     field.width = width
     field.height = height
     field.cell_size = cell_size
+    field.level = level
+    print(field.level)
 end
 
 function field.get_free_cells()
@@ -27,15 +35,25 @@ function field.get_free_cells()
 
     for x=1, field.width do
         for y=1, field.height do
+        local free = true
             for _, val in ipairs(snake.body) do
-                if val[1] ~= x or val[2] ~= y then
-                    table.insert(free_cells, {x, y})
+                if val[1] == x and val[2] == y then
+                    free = false
                 end
+
+            end
+
+            if free then
+                table.insert(free_cells, {x, y})
             end
         end
     end
 
     return free_cells
+end
+
+function field.draw()
+    --level.draw(level.levels[field.level], 0, 0, field.cell_size)
 end
 
 --- snake
@@ -51,7 +69,7 @@ function snake.init(x, y, speed)
     snake.body = snake.render() 
 
     snake.timer = timer.new()
-    snake.timer:every(0.1, snake.update)
+    snake.timer:every(0.05 + 0.03*(5-speed), snake.update)
 end
 
 function snake.change_dir(newDir)
@@ -168,7 +186,7 @@ function snake.draw()
     for i=1, #body do
         local x, y = body[i][1], body[i][2]
 
-        love.graphics.setColor({255, 255, 255})
+        love.graphics.setColor({255, 255, 255, 255 - 200*(i-1)/#body})
         love.graphics.rectangle("fill", (x-1)*field.cell_size, (y-1)*field.cell_size, field.cell_size, field.cell_size)
     end
 end
@@ -202,12 +220,13 @@ end
 -- game
 function game:init()
     helper.setFont("ThaleahFat", 16*15)
-    field.init(23, 15, 40)
 end
 
-function game:enter()
+function game:enter(last, selected_level, selected_speed)
+    print(selected_level)
+    field.init(gc.field.width, gc.field.height, gc.field.cell_size, selected_level)
     score.init()
-    snake.init(15, 7)
+    snake.init(math.floor(gc.field.width / 2), math.floor(gc.field.height / 2), selected_speed)
     snack.respawn()
 end
 
@@ -224,7 +243,7 @@ function game:update(dt)
 end
 
 function game:draw()
-    for _, entity in pairs({snack, snake, score}) do
+    for _, entity in pairs({field, snack, snake, score}) do
         entity.draw()
     end
 end
