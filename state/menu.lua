@@ -6,11 +6,11 @@ local helper = require("lib.helper")
 
 -- states
 local game = require("state.game")
---local select = require("state.select")
+local select_level = require("state.select_level")
 
 local current_entry = 1
 local entries = {
-    {"Start", function() gamestate.switch(game) end},
+    {"Start", function() gamestate.switch(select_level) end},
     {"Options", function() gamestate.switch(options) end},
     {"Exit", function() love.event.quit() end}
 }
