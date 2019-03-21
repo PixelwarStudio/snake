@@ -25,11 +25,10 @@ function level.draw(l, start_x, start_y, cell_size)
             local x, y, w, h = obj[1], obj[2], obj[3], obj[4]
 
             love.graphics.rectangle("fill", start_x + x*cell_size, start_y + y*cell_size, cell_size, cell_size*h)
-            love.graphics.rectangle("fill", start_x + (x+w)*cell_size, start_y + y*cell_size, cell_size, cell_size*h)
+            love.graphics.rectangle("fill", start_x + (x+w-1)*cell_size, start_y + y*cell_size, cell_size, cell_size*h)
             love.graphics.rectangle("fill", start_x + (x+1)*cell_size, start_y + y*cell_size, cell_size*(w-1), cell_size)
             love.graphics.rectangle("fill", start_x + (x+1)*cell_size, start_y + (y+h-1)*cell_size, cell_size*(w-1), cell_size)
         end
-
     end
 end
 
