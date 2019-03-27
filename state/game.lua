@@ -12,7 +12,7 @@ local level = require("level")
 -- game config
 local gc = require("game_conf")
 
--- state 
+-- state
 gameover = gameover or require("state.gameover")
 
 -- entities
@@ -22,25 +22,36 @@ local snack = {}
 local score = {}
 
 --- field
-function field.init(width, height, cell_size, level)
+function field.init(width, height, cell_size, selected_level)
     field.width = width
     field.height = height
     field.cell_size = cell_size
-    field.level = level
-    print(field.level)
+    field.level = level.levels[selected_level]
+    field.obstacles = level.get_cells(field.level)
 end
 
 function field.get_free_cells()
     local free_cells = {}
+    local obstacles = field.obstacles
 
     for x=1, field.width do
         for y=1, field.height do
-        local free = true
+            local free = true
+
+            -- check for snake
             for _, val in ipairs(snake.body) do
                 if val[1] == x and val[2] == y then
                     free = false
+                    break
                 end
-
+            end
+            
+            -- 
+            for _, cell in ipairs(obstacles) do
+                if cell[1] == x and cell[2] == y then
+                    free = false
+                    break
+                end
             end
 
             if free then
@@ -53,7 +64,8 @@ function field.get_free_cells()
 end
 
 function field.draw()
-    --level.draw(level.levels[field.level], 0, 0, field.cell_size)
+    love.graphics.setColor({255, 255, 255})
+    level.draw(field.level, 0, 0, field.cell_size)
 end
 
 --- snake
@@ -107,8 +119,7 @@ function snake.crawl()
 end
 
 function snake.render()
-    local x, y = snake.x, snake.y
-    local w, h = field.width, field.height
+    local x, y, w, h = snake.x, snake.y, field.width, field.height
     local segments = snake.segments
     local body = {}
 
@@ -116,7 +127,7 @@ function snake.render()
         local dir = segment.dir
         local inc = direction.get_increment(dir)
 
-        for i=1, segment.length do
+        for i=0, segment.length-1 do
             if dir == direction.left or dir == direction.right then
                 table.insert(body, {1 + (x + inc*i - 1) % field.width, y})
             else
@@ -134,23 +145,32 @@ function snake.render()
     return body
 end
 
-function snake.is_biting()
+function snake.is_crashing()
     local body = snake.body
+    local x, y = snake.x, snake.y
 
-    for i=1, #body-1 do
-        for j=i+1,#body do
-            if body[i][1] == body[j][1] and body[i][2] == body[j][2] then
+    -- snake bits itself?
+    for i, cell in ipairs(body) do
+        if i ~= 1 then 
+            if x == cell[1] and y == cell[2] then
                 return true
             end
         end
     end
-    
+
+    -- snake crashes into obstacle?
+    for _, cell in ipairs(field.obstacles) do
+        if x == cell[1] and y == cell[2] then
+            return true
+        end
+    end
+
     return false
 end
 
 function snake.found_snack()
-    for _, coor in ipairs(snake.body)  do
-        if coor[1] == snack.x and coor[2] == snack.y then
+    for _, cell in ipairs(snake.body)  do
+        if snack.x == cell[1] and snack.y == cell[2] then 
             return true
         end
     end
@@ -164,7 +184,7 @@ function snake.update()
     snake.crawl()
     snake.body = snake.render()
 
-    if snake.is_biting() then
+    if snake.is_crashing() then
         timer.cancel(snake.timer)
         gamestate.switch(gameover, score.value)
     end
@@ -223,7 +243,6 @@ function game:init()
 end
 
 function game:enter(last, selected_level, selected_speed)
-    print(selected_level)
     field.init(gc.field.width, gc.field.height, gc.field.cell_size, selected_level)
     score.init()
     snake.init(math.floor(gc.field.width / 2), math.floor(gc.field.height / 2), selected_speed)
@@ -231,7 +250,7 @@ function game:enter(last, selected_level, selected_speed)
 end
 
 function game:update(dt)
-    for i, key in pairs({"left", "right", "up", "down"}) do
+    for _, key in pairs({"left", "right", "up", "down"}) do
         if love.keyboard.isDown(key) then
             snake.change_dir(key)
         end
