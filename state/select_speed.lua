@@ -7,8 +7,8 @@ local helper = require("lib.helper")
 local current_speed = 1
 
 local selected_level
-function select_speed:enter(last, selected_level)
-    selected_level = selected_level
+function select_speed:enter(last, level)
+    selected_level = level
 end
 
 function select_speed:keyreleased(key)
