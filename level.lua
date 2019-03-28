@@ -26,15 +26,11 @@ function level.get_cells(l)
             for i=0, h-1, 1 do
                 table.insert(points, {x, y+i})
                 table.insert(points, {x+w-1, y+i})
-
-                print(x, y+i, x+w-1, y+i)
             end
             
             for i=1, w-2, 1 do
                 table.insert(points, {x+i, y})
                 table.insert(points, {x+i, y+h-1})
-
-                print(x+i, y, x+i, y+h-1)
             end
         end
     end
