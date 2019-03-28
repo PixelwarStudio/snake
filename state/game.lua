@@ -26,8 +26,8 @@ function field.init(width, height, cell_size, selected_level)
     field.width = width
     field.height = height
     field.cell_size = cell_size
-    field.level = level.levels[selected_level]
-    field.obstacles = level.get_cells(field.level)
+    field.level = selected_level
+    field.obstacles = level.get_cells(level.levels[selected_level])
 end
 
 function field.get_free_cells()
@@ -65,7 +65,7 @@ end
 
 function field.draw()
     love.graphics.setColor({255, 255, 255})
-    level.draw(field.level, 0, 0, field.cell_size)
+    level.draw(level.levels[field.level], 0, 0, field.cell_size)
 end
 
 --- snake
@@ -186,7 +186,7 @@ function snake.update()
 
     if snake.is_crashing() then
         timer.cancel(snake.timer)
-        gamestate.switch(gameover, score.value)
+        gamestate.switch(gameover, score.value, field.level, snake.speed)
     end
 
     if snake.found_snack() then
@@ -233,15 +233,12 @@ function score.init()
 end
 
 function score.draw()
+    helper.setFont("ThaleahFat", 16*15)
     love.graphics.setColor({255, 255, 255, score.opacity})
     love.graphics.printf(score.value, 0, (love.graphics.getHeight() - love.graphics.getFont():getHeight()) / 2, love.graphics.getWidth(), "center")
 end
 
 -- game
-function game:init()
-    helper.setFont("ThaleahFat", 16*15)
-end
-
 function game:enter(last, selected_level, selected_speed)
     field.init(gc.field.width, gc.field.height, gc.field.cell_size, selected_level)
     score.init()
