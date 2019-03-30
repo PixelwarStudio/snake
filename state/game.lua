@@ -1,4 +1,5 @@
 game = {}
+game.state = "paused"
 
 -- lib
 local gamestate = require("lib.gamestate")
@@ -240,20 +241,28 @@ end
 
 -- game
 function game:enter(last, selected_level, selected_speed)
+    game.state = "paused"
     field.init(gc.field.width, gc.field.height, gc.field.cell_size, selected_level)
     score.init()
     snake.init(math.floor(gc.field.width / 2), math.floor(gc.field.height / 2), selected_speed)
     snack.respawn()
 end
 
+function game:keyreleased(key)
+    if key == "return" then
+        game.state = game.state == "paused" and "running" or "paused"
+    end
+end
+
 function game:update(dt)
+    if game.state == "paused" then return nil end
+
     for _, key in pairs({"left", "right", "up", "down"}) do
         if love.keyboard.isDown(key) then
             snake.change_dir(key)
         end
     end
 
-    -- update timers
     snake.timer:update(dt)
     score.timer:update(dt)
 end
@@ -261,6 +270,11 @@ end
 function game:draw()
     for _, entity in pairs({field, snack, snake, score}) do
         entity.draw()
+    end
+
+    if game.state == "paused" then
+        love.graphics.setColor({0, 0, 0, 150})
+        love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
     end
 end
 
