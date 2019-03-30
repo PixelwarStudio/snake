@@ -255,7 +255,7 @@ function game:keyreleased(key)
 end
 
 function game:update(dt)
-    if game.state == "paused" then return nil end
+    if game.state == "paused" then return end
 
     for _, key in pairs({"left", "right", "up", "down"}) do
         if love.keyboard.isDown(key) then
@@ -272,10 +272,10 @@ function game:draw()
         entity.draw()
     end
 
-    if game.state == "paused" then
-        love.graphics.setColor({0, 0, 0, 150})
-        love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
-    end
+    if game.state == "running" then return end
+
+    love.graphics.setColor({0, 0, 0, 150})
+    love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 end
 
 return game
