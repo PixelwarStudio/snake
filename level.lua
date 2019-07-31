@@ -9,6 +9,12 @@ level.levels = {
     -- classic
     {
         {1, 1, gc.field.width, gc.field.height}
+    },
+    -- pong
+    {
+        {math.floor(gc.field.width / 2), math.floor(2*gc.field.height / 3)},
+        {1, 1, 1, math.floor(gc.field.height / 3)},
+        {gc.field.width, math.floor(2*gc.field.height / 3), 1, math.floor(gc.field.height / 3)}
     }
 }
 
@@ -42,7 +48,9 @@ function level.draw(l, start_x, start_y, cell_size)
     for _, obj in ipairs(l) do
         -- point
         if #obj == 2 then
-            love.graphics.rectangle("fill", start_x + (obj[1]-1)*cell_size, start_y + (obj[2]-1)*cell_size, cell_size, cell_size)
+            local x, y = obj[1], obj[2]
+
+            love.graphics.rectangle("fill", start_x + (x-1)*cell_size, start_y + (y-1)*cell_size, cell_size, cell_size)
         -- rectangle
         elseif #obj == 4 then
             local x, y, w, h = obj[1], obj[2], obj[3], obj[4]
