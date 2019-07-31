@@ -274,6 +274,7 @@ function game:draw()
 
     if game.state == "running" then return end
 
+    -- overlay when not running
     love.graphics.setColor({0, 0, 0, 150})
     love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 end
